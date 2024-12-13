@@ -103,65 +103,11 @@ def merge_nodes(head: Node) -> None:
                 if curr_next is not None:
                     curr_next.prev = curr_prev
 
-                # curr.next = None
-                # curr.prev = None
-                # curr.val = -1
-
                 curr = curr_next
             else:
                 curr = curr.next
 
         prev = prev.next
-
-
-# def count_recursively(num: int, k: int, i: int = 0, cnt: int = 1):
-#     if i == k:
-#         return cnt
-
-#     if num == 0:
-#         return count_recursively(1, k, i + 1, cnt)
-#     elif count_digits(num) % 2 == 0:
-#         left, right = split_num_into_two(num)
-#         return count_recursively(left, k, i + 1, cnt) + count_recursively(
-#             right, k, i + 1, cnt
-#         )
-#     else:
-#         return count_recursively(num * 2024, k, i + 1, cnt)
-
-
-# def generate_numbers(num: int, k: int):
-#     for _ in range(k):
-#         if num == 0:
-#             yield 1
-#         elif count_digits(num) % 2 == 0:
-#             left, right = split_num_into_two(num)
-#             yield left
-#             yield right
-#         else:
-#             yield num * 2024
-
-
-# def iterative_count(num: int, k: int):
-#     q = deque()
-#     q.append(num)
-#     for _ in range(k):
-#         size = len(q)
-#         print("Current size , ", size)
-#         for _ in range(size):
-#             num = q.popleft()
-
-#             # if num == 0:
-#             #     q.append(1)
-#             # elif count_digits(num) % 2 == 0:
-#             #     left, right = split_num_into_two(num)
-#             #     q.append(left)
-#             #     q.append(right)
-#             # else:
-#             #     q.append(num * 2024)
-#             for new_num in generate_numbers(num, 1):
-#                 q.append(new_num)
-
-#     return len(q)
 
 
 def generate_ll_from_list(lst: list[int]) -> Node:
@@ -181,11 +127,4 @@ n = 75
 for i in range(n):
     apply_rules(head)
     merge_nodes(head)
-# pretty_print_ll(head)
 print("Count of stones = ", get_count_of_nodes(head))
-
-
-# test merge function
-# head = generate_ll_from_list([40])
-# merge_nodes(head)
-# pretty_print_ll(head)

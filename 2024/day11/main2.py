@@ -6,9 +6,13 @@ with open("input.txt") as f:
 
 
 class Node:
-    def __init__(self, val: int = 0, next: "Node" = None):
+    def __init__(
+        self, val: int = 0, next: "Node" = None, prev: "Node" = None, cnt: int = 1
+    ):
         self.val = val
+        self.cnt = cnt
         self.next = next
+        self.prev = prev
 
 
 def get_count_of_nodes(head: Node) -> int:
@@ -19,22 +23,20 @@ def get_count_of_nodes(head: Node) -> int:
 
     cnt = 0
     while temp != None:
-        cnt += 1
+        cnt += temp.cnt
         temp = temp.next
 
     return cnt
 
 
-def pretty_print_ll(head: Node) -> int:
+def pretty_print_ll(head: Node) -> None:
     temp = head.next
     if temp is None:
         print("List is empty")
 
     while temp != None:
-        print(temp.val, end=" -> ")
+        print(f"{temp.val} (cnt={temp.cnt})", end=" -> ")
         temp = temp.next
-
-    return cnt
 
 
 def count_digits(num: int) -> int:
@@ -65,17 +67,17 @@ def apply_rules(head: Node) -> None:
         elif count_digits(curr.val) % 2 == 0:
             left_half, right_half = split_num_into_two(curr.val)
 
-            left_node = Node(left_half)
-            right_node = Node(right_half)
-
             # split current node into two
-            right_node.next = curr.next
-            curr.next = None
+            left_node = Node(left_half, cnt=curr.cnt)
+
+            curr.val = right_half
+
             prev.next = left_node
+            left_node.prev = prev
+            left_node.next = curr
 
-            left_node.next = right_node
+            curr.prev = left_node
 
-            curr = right_node
             prev = left_node
         else:
             curr.val = curr.val * 2024
@@ -84,60 +86,106 @@ def apply_rules(head: Node) -> None:
         curr = curr.next
 
 
-def count_recursively(num: int, k: int, i: int = 0, cnt: int = 1):
-    if i == k:
-        return cnt
+def merge_nodes(head: Node) -> None:
+    """Merge nodes with same values and increases the count of merged node"""
+    prev = head.next
+    while prev != None:
+        curr = prev.next
+        while curr != None:
+            # merge this with prev and de-link this from ll
+            if curr.val == prev.val:
+                prev.cnt += curr.cnt
 
-    if num == 0:
-        return count_recursively(1, k, i + 1, cnt)
-    elif count_digits(num) % 2 == 0:
-        left, right = split_num_into_two(num)
-        return count_recursively(left, k, i + 1, cnt) + count_recursively(
-            right, k, i + 1, cnt
-        )
-    else:
-        return count_recursively(num * 2024, k, i + 1, cnt)
+                curr_prev = curr.prev
+                curr_next = curr.next
 
+                curr_prev.next = curr_next
+                if curr_next is not None:
+                    curr_next.prev = curr_prev
 
-def iterative_count(num: int, k: int):
-    q = deque()
-    q.append(num)
+                # curr.next = None
+                # curr.prev = None
+                # curr.val = -1
 
-    for _ in range(k):
-        size = len(q)
-        print("Current size , ", size)
-        for _ in range(size):
-            num = q.popleft()
-
-            if num == 0:
-                q.append(1)
-            elif count_digits(num) % 2 == 0:
-                left, right = split_num_into_two(num)
-                q.append(left)
-                q.append(right)
+                curr = curr_next
             else:
-                q.append(num * 2024)
+                curr = curr.next
 
-    return len(q)
+        prev = prev.next
 
 
-cnt = 0
-n = 25
-for i in range(len(stones)):
-    print("i = ", i)
+# def count_recursively(num: int, k: int, i: int = 0, cnt: int = 1):
+#     if i == k:
+#         return cnt
+
+#     if num == 0:
+#         return count_recursively(1, k, i + 1, cnt)
+#     elif count_digits(num) % 2 == 0:
+#         left, right = split_num_into_two(num)
+#         return count_recursively(left, k, i + 1, cnt) + count_recursively(
+#             right, k, i + 1, cnt
+#         )
+#     else:
+#         return count_recursively(num * 2024, k, i + 1, cnt)
+
+
+# def generate_numbers(num: int, k: int):
+#     for _ in range(k):
+#         if num == 0:
+#             yield 1
+#         elif count_digits(num) % 2 == 0:
+#             left, right = split_num_into_two(num)
+#             yield left
+#             yield right
+#         else:
+#             yield num * 2024
+
+
+# def iterative_count(num: int, k: int):
+#     q = deque()
+#     q.append(num)
+#     for _ in range(k):
+#         size = len(q)
+#         print("Current size , ", size)
+#         for _ in range(size):
+#             num = q.popleft()
+
+#             # if num == 0:
+#             #     q.append(1)
+#             # elif count_digits(num) % 2 == 0:
+#             #     left, right = split_num_into_two(num)
+#             #     q.append(left)
+#             #     q.append(right)
+#             # else:
+#             #     q.append(num * 2024)
+#             for new_num in generate_numbers(num, 1):
+#                 q.append(new_num)
+
+#     return len(q)
+
+
+def generate_ll_from_list(lst: list[int]) -> Node:
     head = Node(-1)
-    head.next = Node(stones[i])
+    temp = head
+    for val in lst:
+        new_nn = Node(val)
+        temp.next = new_nn
+        new_nn.prev = temp
+        temp = temp.next
 
-    for i in range(n):
-        apply_rules(head)
-
-    cnt += get_count_of_nodes(head)
-
-    pretty_print_ll(head)
-
-    # cnt += count_recursively(stones[i], n)
-
-    # cnt += iterative_count(stones[i], n)
+    return head
 
 
-print("Total cnt = ", cnt)
+head = generate_ll_from_list(stones)
+n = 75
+for i in range(n):
+    apply_rules(head)
+    merge_nodes(head)
+# pretty_print_ll(head)
+print("Count of stones = ", get_count_of_nodes(head))
+
+
+# test merge function
+# head = generate_ll_from_list([40])
+# merge_nodes(head)
+# pretty_print_ll(head)

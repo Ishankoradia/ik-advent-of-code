@@ -2,3 +2,4 @@ venv
 
 input.txt
 test_input.txt
+*.txt
